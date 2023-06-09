@@ -46,7 +46,7 @@ Write-Output "Task: Generating Databricks Workspace URL"
 
 try {
     $token = (Get-AzAccessToken).Token
-    
+    Write-Host $token
     # https url for getting workspace details
     $url = "https://management.azure.com/subscriptions/" + $SUBSCRIPTION_ID + "/resourceGroups/" + $RG_NAME + "/providers/Microsoft.Databricks/workspaces/" + $WORKSPACE_NAME + "?api-version=2023-02-01"
     
@@ -56,6 +56,7 @@ try {
     #call http method to get workspace url
     $resurl = Invoke-RestMethod -Method Get -ContentType "application/json" -Uri $url  -Headers $headerstkn
     $WorkspaceUrl = $resurl.properties.workspaceUrl
+    Write-Host $WorkspaceUrl
     Write-Host "Successful: Databricks workspace url is generated"
 }
 catch {
@@ -71,6 +72,7 @@ Write-Output "Task: Generating Databricks Workspace resource ID"
 try {
     $WORKSPACE_ID = Get-AzResource -ResourceType Microsoft.Databricks/workspaces -ResourceGroupName $RG_NAME -Name $WORKSPACE_NAME
     $ACTUAL_WORKSPACE_ID = $WORKSPACE_ID.ResourceId
+    Write-Host $ACTUAL_WORKSPACE_ID
     Write-Host "Successful: Databricks workspace resource ID is generated"
 }
 catch {
@@ -86,6 +88,7 @@ Write-Output "Task: Generating Databricks resource token"
 try {
     # unique resource ID for the Azure Databricks service
     [string] $TOKEN = (Get-AzAccessToken -Resource '2ff814a6-3304-4ab8-85cb-cd0e6f879c1d').Token
+    Write-Host $TOKEN
     Write-Host "Successful: Resource Token generated"
 }
 catch {
@@ -100,6 +103,7 @@ Write-Output "Task: Generating management token"
 
 try {
     [string] $AZ_TOKEN = (Get-AzAccessToken -ResourceUrl 'https://management.core.windows.net/').Token   
+    Write-Host $AZ_TOKEN
     Write-Host "Successful: Management token generated"
 }
 catch {
@@ -126,6 +130,7 @@ try {
     #https request for generating token
     Write-Host "Attempt 1 : Generating Personal Access Token"
     $DB_PAT = ((Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/token/create" -Headers $HEADERS -Body $BODY).token_value)
+    Write-Host $DB_PAT
     Write-Output "Successful: Personal Access Token generated"
 }
 catch {
@@ -136,6 +141,7 @@ catch {
     try {
         Write-Host "Attempt 2 : generating Personal Access Token"
         $DB_PAT = ((Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/token/create" -Headers $HEADERS -Body $BODY).token_value)
+        Write-Host $DB_PAT
         Write-Output "Successful: Personal Access Token generated"
     }
     catch {
